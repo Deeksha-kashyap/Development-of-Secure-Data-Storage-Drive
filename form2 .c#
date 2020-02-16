@@ -1,0 +1,78 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+namespace SecurityProject
+{
+    public partial class Form2 : Form
+    {
+        string getDate(DateTime dt)
+        {
+            string CurrentDate = dt.Day.ToString() + "/" + dt.Month.ToString() + "/" +            dt.Year.ToString();
+            return CurrentDate;
+        }
+        string getTime(DateTime t)
+        {
+            string CurrentTime = t.ToShortTimeString();
+            return CurrentTime;
+        }
+        public Form2()
+        {
+            InitializeComponent();
+            Start.ActiveForm.Visible = false;
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnOk_Click(object sender, EventArgs e)
+        {
+            SqlConnection con = new SqlConnection("Data Source=desktop-kr9upqb;Initial Catalog=dataprotector;Integrated Security=True;Pooling=False");
+            con.Open();
+            string query = "select * from userinfo where userid='" + txtId.Text + "' and password='" + txtPassword.Text + "'";
+            SqlCommand cmd = new SqlCommand(query, con);
+            SqlDataReader dr = cmd.ExecuteReader();
+            if (dr.Read())
+            {}
+            
+            if (dr.HasRows)
+            {
+                dr.Close();
+                ClsUserInfo.userid = txtId.Text;
+                string dateofLogin = getDate(DateTime.Now);
+                string timeinofLogin = getTime(DateTime.Now);
+                ClsUserInfo.dateoflogin = dateofLogin;
+                ClsUserInfo.timeinoflogin = timeinofLogin;
+                query = "insert into Loginlog values('" + txtId.Text  + "','" + dateofLogin + "','" + timeinofLogin + "','***')";
+                cmd = new SqlCommand(query, con);
+                cmd.ExecuteNonQuery();
+
+                Form1 frm = new Form1();
+                frm.Show();
+
+                con.Close();
+                this.Visible = false;
+            }
+            else
+            {
+                MessageBox.Show("Wrong UserId/Password ");
+                txtId.Text = "";
+                txtPassword.Text = "";
+                txtId.Focus();
+            }
+        }
+    }
+}
